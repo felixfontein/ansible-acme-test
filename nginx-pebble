@@ -1,0 +1,12 @@
+server {
+    listen *:80;
+
+    location /.well-known/acme-challenge/ {
+        alias /lechallenges/;
+        try_files $uri =404;
+    }
+
+    location / {
+        return 200 'this site is empty';
+    }
+}

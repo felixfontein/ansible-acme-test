@@ -1,0 +1,10 @@
+---
+# Deactivate account
+- name: Deactivate EC256 account
+  local_action:
+    module: acme_account
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    account_key_src: "{{ output_dir }}/account-ec256.pem"
+    state: absent

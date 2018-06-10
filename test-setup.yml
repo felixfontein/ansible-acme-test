@@ -1,0 +1,20 @@
+---
+# Create account keys
+- name: Create ECC256 account key
+  local_action:
+    module: command openssl ecparam -name prime256v1 -genkey -out {{ output_dir }}/account-ec256.pem
+- name: Create ECC384 account key
+  local_action:
+    module: command openssl ecparam -name secp384r1 -genkey -out {{ output_dir }}/account-ec384.pem
+- name: Create RSA-2048 account key
+  local_action:
+    module: command openssl genrsa -out {{ output_dir }}/account-rsa2048.pem 2048
+- name: Wait until pebble is up and running
+  uri:
+    url: https://localhost:14000/dir
+    validate_certs: no
+  register: check_pebble_started
+  until: check_pebble_started is success
+  retries: 20
+  delay: 1
+  ignore_errors: yes

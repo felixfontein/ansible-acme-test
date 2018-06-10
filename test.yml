@@ -1,0 +1,7 @@
+- name: Run ACME tests
+  hosts: host
+  tasks:
+  - include: test-setup.yml
+  - include: test-account-setup.yml
+  - include: test-certificate.yml
+  - include: test-account.yml
