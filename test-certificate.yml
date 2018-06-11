@@ -9,7 +9,7 @@
     module: openssl_csr
     path: "{{ output_dir }}/cert-1.csr"
     privatekey_path: "{{ output_dir }}/cert-1.key"
-    subject_alt_name: "DNS:localhost"
+    subject_alt_name: "DNS:example.com"
 - name: Obtain cert 1, step 1
   local_action:
     module: acme_certificate
@@ -25,7 +25,7 @@
     chain_dest: "{{ output_dir }}/cert-1-chain.pem"
     challenge: http-01
   register: challenge_data
-- name: Pring challenge data
+- name: Print challenge data
   debug:
     var: challenge_data
 - name: Create HTTP challenges
@@ -54,3 +54,68 @@
     path: "/lechallenges/{{ item.value['http-01'].resource[('.well-known/acme-challenge/'|length):] }}"
     state: absent
   with_dict: "{{ challenge_data.challenge_data }}"
+########################################################################################
+## Step 2: get certificate for localhost with dns-01 verification
+- name: Create cert 2 private key
+  local_action:
+    module: command openssl ecparam -name prime256v1 -genkey -out {{ output_dir }}/cert-2.key
+- name: Create cert 2 CSR
+  local_action:
+    module: openssl_csr
+    path: "{{ output_dir }}/cert-2.csr"
+    privatekey_path: "{{ output_dir }}/cert-2.key"
+    subject_alt_name: "DNS:*.example.com,DNS:example.com"
+- name: Obtain cert 2, step 1
+  local_action:
+    module: acme_certificate
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    force: yes
+    account_key: "{{ output_dir }}/account-ec256.pem"
+    modify_account: no
+    csr: "{{ output_dir }}/cert-2.csr"
+    dest: "{{ output_dir }}/cert-2.pem"
+    fullchain_dest: "{{ output_dir }}/cert-2-fullchain.pem"
+    chain_dest: "{{ output_dir }}/cert-2-chain.pem"
+    challenge: dns-01
+  register: challenge_data
+- name: Print challenge data
+  debug:
+    var: challenge_data
+- name: Create DNS challenges for example.com
+  copy:
+    content: |
+      {% include 'example.com' %}
+      
+      {% for value in challenge_data.challenge_data_dns['_acme-challenge.example.com'] %}
+      _acme-challenge IN TXT {{ value }}
+      {% endfor %}
+    dest: /etc/bind/zones/example.com
+- name: Restart DNS service
+  service:
+    name: bind9
+    state: restarted
+- name: Obtain cert 2, step 2
+  local_action:
+    module: acme_certificate
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    force: yes
+    account_key: "{{ output_dir }}/account-ec256.pem"
+    modify_account: no
+    csr: "{{ output_dir }}/cert-2.csr"
+    dest: "{{ output_dir }}/cert-2.pem"
+    fullchain_dest: "{{ output_dir }}/cert-2-fullchain.pem"
+    chain_dest: "{{ output_dir }}/cert-2-chain.pem"
+    challenge: dns-01
+    data: "{{ challenge_data }}"
+- name: Remove DNS challenges for example.com
+  copy:
+    src: example.com
+    dest: /etc/bind/zones/example.com
+- name: Restart DNS service
+  service:
+    name: bind9
+    state: restarted
