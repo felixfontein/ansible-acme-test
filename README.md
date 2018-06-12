@@ -13,8 +13,6 @@ Run `./run.sh` to run the tests with these docker containers.
 ## TODO
 
 - Add more tests
-  - certificates for multiple domains
+  - more certificates (with more domains)
   - revocation of certificates
-  - changing account data
-- Add test verifications (for account deactivation etc.)
 - With a later version of Pebble, add test for account key change
