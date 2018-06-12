@@ -23,8 +23,6 @@ build_nginx_config() {
 }
 
 build_pebble() {
-    docker pull golang:1.10-stretch
-
     rm -rf build
     trap "{ rm -rf build ; }" EXIT
 
@@ -70,6 +68,7 @@ build_pebble() {
     rm -rf build
 }
 
+docker pull golang:1.10-stretch
 build_nginx_config
 build_pebble python2.7 2
 build_pebble python3 3
