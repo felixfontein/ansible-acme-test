@@ -1,5 +1,5 @@
 #!/bin/bash
-DOMAINS="example.com example.org"
+DOMAINS="example.com example.org t1.example.com t2.example.com t3.example.com t1.example.org t2.example.org t3.example.org"
 
 build_nginx_config() {
     echo "server {" > nginx-pebble

@@ -1,0 +1,12 @@
+---
+- name: Remove DNS challenges
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/bind/zones/{{ item }}"
+  with_items:
+  - example.com
+  - example.org
+- name: Restart DNS service
+  service:
+    name: bind9
+    state: restarted
