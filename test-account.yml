@@ -8,3 +8,167 @@
     validate_certs: no
     account_key_src: "{{ output_dir }}/account-ec256.pem"
     state: absent
+
+#######################################################################################
+## Integration tests from Ansible
+
+- name: Generate account key
+  local_action:
+    module: command openssl ecparam -name prime256v1 -genkey -out {{ output_dir }}/accountkey.pem
+
+- name: Parse account key (to ease debugging some test failures)
+  local_action:
+    module: command openssl ec -in {{ output_dir }}/accountkey.pem -noout -text
+
+- name: Do not try to create account
+  local_action:
+    module: acme_account
+    account_key_src: "{{ output_dir }}/accountkey.pem"
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    state: present
+    allow_creation: no
+  ignore_errors: yes
+  register: account_not_created
+
+- name: Create it now
+  local_action:
+    module: acme_account
+    account_key_src: "{{ output_dir }}/accountkey.pem"
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    state: present
+    allow_creation: yes
+    terms_agreed: yes
+    contact:
+    - mailto:example@example.org
+  register: account_created
+
+- name: Change email address
+  local_action:
+    module: acme_account
+    account_key_src: "{{ output_dir }}/accountkey.pem"
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    state: present
+    # allow_creation: no
+    contact:
+    - mailto:example@example.com
+  register: account_modified
+
+- name: Change email address (idempotent)
+  local_action:
+    module: acme_account
+    account_key_src: "{{ output_dir }}/accountkey.pem"
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    state: present
+    # allow_creation: no
+    contact:
+    - mailto:example@example.com
+  register: account_modified_idempotent
+
+- name: Generate new account key
+  local_action:
+    module: command openssl ecparam -name secp384r1 -genkey -out {{ output_dir }}/accountkey2.pem
+
+- name: Parse account key (to ease debugging some test failures)
+  local_action:
+    module: command openssl ec -in {{ output_dir }}/accountkey2.pem -noout -text
+
+# Note that pebble has no change key endpoint implemented yet!
+# When it has, uncomment the following tests, and delete the
+# ones below the out-commented ones.
+
+#- name: Change account key
+#  local_action:
+#    module: acme_account
+#    account_key_src: "{{ output_dir }}/accountkey.pem"
+#    acme_version: 2
+#    acme_directory: https://localhost:{{ pebble_port }}/dir
+#    validate_certs: no
+#    new_account_key_src: "{{ output_dir }}/accountkey2.pem"
+#    state: changed_key
+#    contact:
+#    - mailto:example@example.com
+#  register: account_change_key
+#
+#- name: Deactivate account
+#  local_action:
+#    module: acme_account
+#    account_key_src: "{{ output_dir }}/accountkey2.pem"
+#    acme_version: 2
+#    acme_directory: https://localhost:{{ pebble_port }}/dir
+#    validate_certs: no
+#    state: absent
+#  register: account_deactivate
+#
+#- name: Deactivate account (idempotent)
+#  local_action:
+#    module: acme_account
+#    account_key_src: "{{ output_dir }}/accountkey2.pem"
+#    acme_version: 2
+#    acme_directory: https://localhost:{{ pebble_port }}/dir
+#    validate_certs: no
+#    state: absent
+#  register: account_deactivate_idempotent
+#
+#- name: Do not try to create account II
+#  local_action:
+#    module: acme_account
+#    account_key_src: "{{ output_dir }}/accountkey2.pem"
+#    acme_version: 2
+#    acme_directory: https://localhost:{{ pebble_port }}/dir
+#    validate_certs: no
+#    state: present
+#    allow_creation: no
+#  ignore_errors: yes
+#  register: account_not_created_2
+#
+#- name: Do not try to create account III
+#  local_action:
+#    module: acme_account
+#    account_key_src: "{{ output_dir }}/accountkey.pem"
+#    acme_version: 2
+#    acme_directory: https://localhost:{{ pebble_port }}/dir
+#    validate_certs: no
+#    state: present
+#    allow_creation: no
+#  ignore_errors: yes
+#  register: account_not_created_3
+
+- name: Deactivate account
+  local_action:
+    module: acme_account
+    account_key_src: "{{ output_dir }}/accountkey.pem"
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    state: absent
+  register: account_deactivate
+
+- name: Deactivate account (idempotent)
+  local_action:
+    module: acme_account
+    account_key_src: "{{ output_dir }}/accountkey.pem"
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    state: absent
+  register: account_deactivate_idempotent
+
+- name: Do not try to create account II
+  local_action:
+    module: acme_account
+    account_key_src: "{{ output_dir }}/accountkey.pem"
+    acme_version: 2
+    acme_directory: https://localhost:{{ pebble_port }}/dir
+    validate_certs: no
+    state: present
+    allow_creation: no
+  ignore_errors: yes
+  register: account_not_created_2
