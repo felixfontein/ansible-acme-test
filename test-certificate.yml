@@ -30,7 +30,7 @@
     var: challenge_data
 - name: Create HTTP challenges
   copy:
-    dest: "/lechallenges/{{ item.value['http-01'].resource[('.well-known/acme-challenge/'|length):] }}"
+    dest: "/lechallenges/example.com/{{ item.value['http-01'].resource[('.well-known/acme-challenge/'|length):] }}"
     content: "{{ item.value['http-01'].resource_value }}"
     mode: "0644"
   with_dict: "{{ challenge_data.challenge_data }}"
@@ -51,7 +51,7 @@
     data: "{{ challenge_data }}"
 - name: Deleting HTTP challenges
   file:
-    path: "/lechallenges/{{ item.value['http-01'].resource[('.well-known/acme-challenge/'|length):] }}"
+    path: "/lechallenges/example.com/{{ item.value['http-01'].resource[('.well-known/acme-challenge/'|length):] }}"
     state: absent
   with_dict: "{{ challenge_data.challenge_data }}"
 ########################################################################################

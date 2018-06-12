@@ -1,4 +1,27 @@
 #!/bin/bash
+DOMAINS="example.com example.org"
+
+build_nginx_config() {
+    echo "server {" > nginx-pebble
+    echo "    listen *:80 default_server;" >> nginx-pebble
+    echo "    location / {" >> nginx-pebble
+    echo "        return 404 'this site does not exist';" >> nginx-pebble
+    echo "    }" >> nginx-pebble
+    echo "}" >> nginx-pebble
+    for DOMAIN in ${DOMAINS}; do
+        echo "server {" >> nginx-pebble
+        echo "    listen *:80;" >> nginx-pebble
+        echo "    server_name ${DOMAIN};" >> nginx-pebble
+        echo "    location /.well-known/acme-challenge/ {" >> nginx-pebble
+        echo "        alias /lechallenges/${DOMAIN}/;" >> nginx-pebble
+        echo "    }" >> nginx-pebble
+        echo "    location / {" >> nginx-pebble
+        echo "        return 200 'this site is empty';" >> nginx-pebble
+        echo "    }" >> nginx-pebble
+        echo "}" >> nginx-pebble
+    done
+}
+
 build_pebble() {
     docker pull golang:1.10-stretch
 
@@ -21,7 +44,11 @@ build_pebble() {
     echo "RUN apt-get install -y nginx bind9 $1" >> build/Dockerfile
     # Setup nginx
     echo "ADD nginx-pebble /etc/nginx/sites-available/pebble" >> build/Dockerfile
-    echo "RUN mkdir /lechallenges && rm /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/pebble /etc/nginx/sites-enabled/pebble" >> build/Dockerfile
+    DOMAIN_FOLDERS=""
+    for DOMAIN in ${DOMAINS}; do
+        DOMAIN_FOLDERS="${DOMAIN_FOLDERS} /lechallenges/${DOMAIN}"
+    done
+    echo "RUN mkdir /lechallenges ${DOMAIN_FOLDERS} && rm /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/pebble /etc/nginx/sites-enabled/pebble" >> build/Dockerfile
     echo "RUN service nginx restart" >> build/Dockerfile
     # Setup bind9
     echo "ADD bind.conf /etc/bind/named.conf" >> build/Dockerfile
@@ -43,5 +70,6 @@ build_pebble() {
     rm -rf build
 }
 
+build_nginx_config
 build_pebble python2.7 2
 build_pebble python3 3
