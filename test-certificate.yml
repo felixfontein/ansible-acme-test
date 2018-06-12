@@ -1,6 +1,6 @@
 ---
 ########################################################################################
-## Step 1: get certificate for localhost with http-01 verification
+## Step 1: get certificate for example.com with http-01 verification
 - name: Create cert 1 private key
   local_action:
     module: command openssl ecparam -name prime256v1 -genkey -out {{ output_dir }}/cert-1.key
@@ -55,7 +55,7 @@
     state: absent
   with_dict: "{{ challenge_data.challenge_data }}"
 ########################################################################################
-## Step 2: get certificate for localhost with dns-01 verification
+## Step 2: get certificate for *.example.com, example.com with dns-01 verification
 - name: Create cert 2 private key
   local_action:
     module: command openssl ecparam -name prime256v1 -genkey -out {{ output_dir }}/cert-2.key
