@@ -1,8 +1,8 @@
 - name: Run ACME tests
   hosts: host
   tasks:
-  - include: test-setup.yml
-  - include: test-account-setup.yml
-  - include: test-certificate.yml
-  - include: test-account.yml
-  - include: test-account-validate.yml
+  - import_tasks: test-setup.yml
+  - import_tasks: test-account-setup.yml
+  - import_tasks: test-certificate.yml
+  - import_tasks: test-account.yml
+  - import_tasks: test-account-validate.yml

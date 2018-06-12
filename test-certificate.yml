@@ -83,7 +83,7 @@
 - name: Print challenge data
   debug:
     var: challenge_data
-- include: test-certificate-setup-dns.yml
+- import_tasks: test-certificate-setup-dns.yml
 - name: Obtain cert 2, step 2
   local_action:
     module: acme_certificate
@@ -99,7 +99,7 @@
     chain_dest: "{{ output_dir }}/cert-2-chain.pem"
     challenge: dns-01
     data: "{{ challenge_data }}"
-- include: test-certificate-clean-dns.yml
+- import_tasks: test-certificate-clean-dns.yml
 ########################################################################################
 ## Step 3: get certificate for *.example.com, example.org, t1.example.com with dns-01 verification
 - name: Create cert 3 private key
@@ -129,7 +129,7 @@
 - name: Print challenge data
   debug:
     var: challenge_data
-- include: test-certificate-setup-dns.yml
+- import_tasks: test-certificate-setup-dns.yml
 - name: Obtain cert 3, step 2
   local_action:
     module: acme_certificate
@@ -145,4 +145,4 @@
     chain_dest: "{{ output_dir }}/cert-3-chain.pem"
     challenge: dns-01
     data: "{{ challenge_data }}"
-- include: test-certificate-clean-dns.yml
+- import_tasks: test-certificate-clean-dns.yml
