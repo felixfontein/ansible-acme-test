@@ -1,0 +1,6 @@
+*
+!bind.conf
+!pebble-config.json
+!requirements.txt
+!run.sh
+!controller.py

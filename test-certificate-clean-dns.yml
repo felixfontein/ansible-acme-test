@@ -1,12 +1,6 @@
 ---
-- name: Remove DNS challenges
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/bind/zones/{{ item }}"
-  with_items:
-  - example.com
-  - example.org
-- name: Restart DNS service
-  service:
-    name: bind9
-    state: restarted
+- name: Create DNS challenges
+  uri:
+    url: "http://{{ acme_host }}:5000/dns/{{ item.key }}"
+    method: DELETE
+  with_dict: "{{ challenge_data.challenge_data_dns }}"

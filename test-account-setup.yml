@@ -1,10 +1,9 @@
 ---
 # Create accounts
 - name: Create ECC256 account
-  local_action:
-    module: acme_account
+  acme_account:
     acme_version: 2
-    acme_directory: https://localhost:{{ pebble_port }}/dir
+    acme_directory: https://{{ acme_host }}:14000/dir
     validate_certs: no
     account_key_src: "{{ output_dir }}/account-ec256.pem"
     state: present
@@ -13,10 +12,9 @@
     contact:
     - mailto:example@example.org
 - name: Create ECC384 account
-  local_action:
-    module: acme_account
+  acme_account:
     acme_version: 2
-    acme_directory: https://localhost:{{ pebble_port }}/dir
+    acme_directory: https://{{ acme_host }}:14000/dir
     validate_certs: no
     account_key_src: "{{ output_dir }}/account-ec384.pem"
     state: present
@@ -26,10 +24,9 @@
     - mailto:example@example.org
     - mailto:example@example.com
 - name: Create RSA-2048 account
-  local_action:
-    module: acme_account
+  acme_account:
     acme_version: 2
-    acme_directory: https://localhost:{{ pebble_port }}/dir
+    acme_directory: https://{{ acme_host }}:14000/dir
     validate_certs: no
     account_key_src: "{{ output_dir }}/account-rsa2048.pem"
     state: present

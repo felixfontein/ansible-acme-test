@@ -1,21 +1,11 @@
 ---
+- name: Print challenge data
+  debug:
+    var: challenge_data
 - name: Create DNS challenges
-  copy:
-    content: |
-      {% include item %}
-      
-      {% for record, values in challenge_data.challenge_data_dns.items() %}
-      {%   if record.endswith(item) %}
-      {%     for value in values %}
-      {{ record[0: -(item | length + 1)] }} IN TXT {{ value }}
-      {%     endfor %}
-      {%   endif %}
-      {% endfor %}
-    dest: "/etc/bind/zones/{{ item }}"
-  with_items:
-  - example.com
-  - example.org
-- name: Restart DNS service
-  service:
-    name: bind9
-    state: restarted
+  uri:
+    url: "http://{{ acme_host }}:5000/dns/{{ item.key }}"
+    method: PUT
+    body_format: json
+    body: "{{ item.value }}"
+  with_dict: "{{ challenge_data.challenge_data_dns }}"

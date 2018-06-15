@@ -2,19 +2,16 @@
 ########################################################################################
 ## Step 1: get certificate for example.com with http-01 verification
 - name: Create cert 1 private key
-  local_action:
-    module: command openssl genrsa -out {{ output_dir }}/cert-1.key 2048
+  command: openssl genrsa -out {{ output_dir }}/cert-1.key 2048
 - name: Create cert 1 CSR
-  local_action:
-    module: openssl_csr
+  openssl_csr:
     path: "{{ output_dir }}/cert-1.csr"
     privatekey_path: "{{ output_dir }}/cert-1.key"
     subject_alt_name: "DNS:example.com"
 - name: Obtain cert 1, step 1
-  local_action:
-    module: acme_certificate
+  acme_certificate:
     acme_version: 2
-    acme_directory: https://localhost:{{ pebble_port }}/dir
+    acme_directory: https://{{ acme_host }}:14000/dir
     validate_certs: no
     force: yes
     account_key: "{{ output_dir }}/account-ec256.pem"
@@ -25,20 +22,11 @@
     chain_dest: "{{ output_dir }}/cert-1-chain.pem"
     challenge: http-01
   register: challenge_data
-- name: Print challenge data
-  debug:
-    var: challenge_data
-- name: Create HTTP challenges
-  copy:
-    dest: "/lechallenges/example.com/{{ item.value['http-01'].resource[('.well-known/acme-challenge/'|length):] }}"
-    content: "{{ item.value['http-01'].resource_value }}"
-    mode: "0644"
-  with_dict: "{{ challenge_data.challenge_data }}"
+- import_tasks: test-certificate-setup-http.yml
 - name: Obtain cert 1, step 2
-  local_action:
-    module: acme_certificate
+  acme_certificate:
     acme_version: 2
-    acme_directory: https://localhost:{{ pebble_port }}/dir
+    acme_directory: https://{{ acme_host }}:14000/dir
     validate_certs: no
     force: yes
     account_key: "{{ output_dir }}/account-ec256.pem"
@@ -49,27 +37,20 @@
     chain_dest: "{{ output_dir }}/cert-1-chain.pem"
     challenge: http-01
     data: "{{ challenge_data }}"
-- name: Deleting HTTP challenges
-  file:
-    path: "/lechallenges/example.com/{{ item.value['http-01'].resource[('.well-known/acme-challenge/'|length):] }}"
-    state: absent
-  with_dict: "{{ challenge_data.challenge_data }}"
+- import_tasks: test-certificate-clean-http.yml
 ########################################################################################
 ## Step 2: get certificate for *.example.com, example.com with dns-01 verification
 - name: Create cert 2 private key
-  local_action:
-    module: command openssl ecparam -name prime256v1 -genkey -out {{ output_dir }}/cert-2.key
+  command: openssl ecparam -name prime256v1 -genkey -out {{ output_dir }}/cert-2.key
 - name: Create cert 2 CSR
-  local_action:
-    module: openssl_csr
+  openssl_csr:
     path: "{{ output_dir }}/cert-2.csr"
     privatekey_path: "{{ output_dir }}/cert-2.key"
     subject_alt_name: "DNS:*.example.com,DNS:example.com"
 - name: Obtain cert 2, step 1
-  local_action:
-    module: acme_certificate
+  acme_certificate:
     acme_version: 2
-    acme_directory: https://localhost:{{ pebble_port }}/dir
+    acme_directory: https://{{ acme_host }}:14000/dir
     validate_certs: no
     force: yes
     account_key: "{{ output_dir }}/account-ec384.pem"
@@ -80,15 +61,11 @@
     chain_dest: "{{ output_dir }}/cert-2-chain.pem"
     challenge: dns-01
   register: challenge_data
-- name: Print challenge data
-  debug:
-    var: challenge_data
 - import_tasks: test-certificate-setup-dns.yml
 - name: Obtain cert 2, step 2
-  local_action:
-    module: acme_certificate
+  acme_certificate:
     acme_version: 2
-    acme_directory: https://localhost:{{ pebble_port }}/dir
+    acme_directory: https://{{ acme_host }}:14000/dir
     validate_certs: no
     force: yes
     account_key: "{{ output_dir }}/account-ec384.pem"
@@ -103,19 +80,16 @@
 ########################################################################################
 ## Step 3: get certificate for *.example.com, example.org, t1.example.com with dns-01 verification
 - name: Create cert 3 private key
-  local_action:
-    module: command openssl ecparam -name secp384r1 -genkey -out {{ output_dir }}/cert-3.key
+  command: openssl ecparam -name secp384r1 -genkey -out {{ output_dir }}/cert-3.key
 - name: Create cert 3 CSR
-  local_action:
-    module: openssl_csr
+  openssl_csr:
     path: "{{ output_dir }}/cert-3.csr"
     privatekey_path: "{{ output_dir }}/cert-3.key"
     subject_alt_name: "DNS:*.example.com,DNS:example.org,DNS:t1.example.com"
 - name: Obtain cert 3, step 1
-  local_action:
-    module: acme_certificate
+  acme_certificate:
     acme_version: 2
-    acme_directory: https://localhost:{{ pebble_port }}/dir
+    acme_directory: https://{{ acme_host }}:14000/dir
     validate_certs: no
     force: yes
     account_key: "{{ output_dir }}/account-rsa2048.pem"
@@ -126,15 +100,11 @@
     chain_dest: "{{ output_dir }}/cert-3-chain.pem"
     challenge: dns-01
   register: challenge_data
-- name: Print challenge data
-  debug:
-    var: challenge_data
 - import_tasks: test-certificate-setup-dns.yml
 - name: Obtain cert 3, step 2
-  local_action:
-    module: acme_certificate
+  acme_certificate:
     acme_version: 2
-    acme_directory: https://localhost:{{ pebble_port }}/dir
+    acme_directory: https://{{ acme_host }}:14000/dir
     validate_certs: no
     force: yes
     account_key: "{{ output_dir }}/account-rsa2048.pem"

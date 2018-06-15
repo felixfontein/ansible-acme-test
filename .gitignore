@@ -1,5 +1,2 @@
-build/
 output-*/
-inventory-*
-nginx-pebble
 *.retry
