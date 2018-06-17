@@ -6,9 +6,9 @@ Uses [Pebble](https://github.com/letsencrypt/Pebble) as the ACME-based CA and [B
 
 ## Usage
 
-Run `./build.sh` to build the Docker container.
+Run `./build-local-master.sh` to build a local version of the Docker container. An “official” build (built with `build.sh`) can be found [on Docker Hub](https://hub.docker.com/r/felixfontein/acme-test-container/).
 
-Run `./run.sh` to run the tests with this docker container.
+Run `./run.sh` to run the tests with this (local) docker container.
 
 ## TODO
 
