@@ -33,6 +33,8 @@ app.config['LOGGER_HANDLER_POLICY'] = 'always'
 
 ZONES_PATH = os.path.abspath(os.environ.get('ZONES_PATH', '.'))
 
+PEBBLE_PATH = os.path.join(os.path.abspath(os.environ.get('GOPATH', '.')), 'src', 'github.com', 'letsencrypt', 'pebble')
+
 
 zones = set(['example.com', 'example.org'])
 challenges = {}
@@ -180,6 +182,12 @@ def get_http_challenge(filename):
         return 'not found', 404
     log('Retrieving HTTP challenge {1} for host {0}'.format(host, '/.well-known/acme-challenge/{0}'.format(filename)))
     return challenges[host][filename]
+
+
+@app.route('/root-certificate')
+def get_root_certificate():
+    with open(os.path.join(PEBBLE_PATH, 'test', 'certs', 'pebble.minica.pem'), 'rt') as f:
+        return f.read()
 
 
 def setup_zones():
