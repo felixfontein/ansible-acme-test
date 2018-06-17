@@ -8,7 +8,7 @@ RUN pip3 install -r /root/requirements.txt
 ADD bind.conf /etc/bind/named.conf
 RUN mkdir /etc/bind/zones
 # Install pebble
-ARG PEBBLE_CHECKOUT="master"
+ARG PEBBLE_CHECKOUT="c0cc64314be427c6d39679e95a7794c89a293912"
 ENV GOPATH=/go
 RUN go get -u github.com/letsencrypt/pebble/... && \
     cd /go/src/github.com/letsencrypt/pebble && \
