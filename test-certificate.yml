@@ -1,118 +1,28 @@
 ---
-########################################################################################
-## Step 1: get certificate for example.com with http-01 verification
-- name: Create cert 1 private key
-  command: openssl genrsa -out {{ output_dir }}/cert-1.key 2048
-- name: Create cert 1 CSR
-  openssl_csr:
-    path: "{{ output_dir }}/cert-1.csr"
-    privatekey_path: "{{ output_dir }}/cert-1.key"
+## SET UP ACCOUNT KEYS ########################################################################
+## OBTAIN CERTIFICATES ########################################################################
+- name: Obtain cert 1
+  include_tasks: test-certificate-obtain.yml
+  vars:
+    certificate_name: cert-1
+    key_type: rsa
+    rsa_bits: 2048
     subject_alt_name: "DNS:example.com"
-- name: Obtain cert 1, step 1
-  acme_certificate:
-    acme_version: 2
-    acme_directory: https://{{ acme_host }}:14000/dir
-    validate_certs: no
-    force: yes
-    account_key: "{{ output_dir }}/account-ec256.pem"
-    modify_account: no
-    csr: "{{ output_dir }}/cert-1.csr"
-    dest: "{{ output_dir }}/cert-1.pem"
-    fullchain_dest: "{{ output_dir }}/cert-1-fullchain.pem"
-    chain_dest: "{{ output_dir }}/cert-1-chain.pem"
+    account_key: account-ec256
     challenge: http-01
-  register: challenge_data
-- import_tasks: test-certificate-setup-http.yml
-- name: Obtain cert 1, step 2
-  acme_certificate:
-    acme_version: 2
-    acme_directory: https://{{ acme_host }}:14000/dir
-    validate_certs: no
-    force: yes
-    account_key: "{{ output_dir }}/account-ec256.pem"
-    modify_account: no
-    csr: "{{ output_dir }}/cert-1.csr"
-    dest: "{{ output_dir }}/cert-1.pem"
-    fullchain_dest: "{{ output_dir }}/cert-1-fullchain.pem"
-    chain_dest: "{{ output_dir }}/cert-1-chain.pem"
-    challenge: http-01
-    data: "{{ challenge_data }}"
-- import_tasks: test-certificate-clean-http.yml
-########################################################################################
-## Step 2: get certificate for *.example.com, example.com with dns-01 verification
-- name: Create cert 2 private key
-  command: openssl ecparam -name prime256v1 -genkey -out {{ output_dir }}/cert-2.key
-- name: Create cert 2 CSR
-  openssl_csr:
-    path: "{{ output_dir }}/cert-2.csr"
-    privatekey_path: "{{ output_dir }}/cert-2.key"
+- name: Obtain cert 2
+  include_tasks: test-certificate-obtain.yml
+  vars:
+    certificate_name: cert-2
+    key_type: ec256
     subject_alt_name: "DNS:*.example.com,DNS:example.com"
-- name: Obtain cert 2, step 1
-  acme_certificate:
-    acme_version: 2
-    acme_directory: https://{{ acme_host }}:14000/dir
-    validate_certs: no
-    force: yes
-    account_key: "{{ output_dir }}/account-ec384.pem"
-    modify_account: no
-    csr: "{{ output_dir }}/cert-2.csr"
-    dest: "{{ output_dir }}/cert-2.pem"
-    fullchain_dest: "{{ output_dir }}/cert-2-fullchain.pem"
-    chain_dest: "{{ output_dir }}/cert-2-chain.pem"
+    account_key: account-ec384
     challenge: dns-01
-  register: challenge_data
-- import_tasks: test-certificate-setup-dns.yml
-- name: Obtain cert 2, step 2
-  acme_certificate:
-    acme_version: 2
-    acme_directory: https://{{ acme_host }}:14000/dir
-    validate_certs: no
-    force: yes
-    account_key: "{{ output_dir }}/account-ec384.pem"
-    modify_account: no
-    csr: "{{ output_dir }}/cert-2.csr"
-    dest: "{{ output_dir }}/cert-2.pem"
-    fullchain_dest: "{{ output_dir }}/cert-2-fullchain.pem"
-    chain_dest: "{{ output_dir }}/cert-2-chain.pem"
-    challenge: dns-01
-    data: "{{ challenge_data }}"
-- import_tasks: test-certificate-clean-dns.yml
-########################################################################################
-## Step 3: get certificate for *.example.com, example.org, t1.example.com with dns-01 verification
-- name: Create cert 3 private key
-  command: openssl ecparam -name secp384r1 -genkey -out {{ output_dir }}/cert-3.key
-- name: Create cert 3 CSR
-  openssl_csr:
-    path: "{{ output_dir }}/cert-3.csr"
-    privatekey_path: "{{ output_dir }}/cert-3.key"
+- name: Obtain cert 3
+  include_tasks: test-certificate-obtain.yml
+  vars:
+    certificate_name: cert-3
+    key_type: ec384
     subject_alt_name: "DNS:*.example.com,DNS:example.org,DNS:t1.example.com"
-- name: Obtain cert 3, step 1
-  acme_certificate:
-    acme_version: 2
-    acme_directory: https://{{ acme_host }}:14000/dir
-    validate_certs: no
-    force: yes
-    account_key: "{{ output_dir }}/account-rsa2048.pem"
-    modify_account: no
-    csr: "{{ output_dir }}/cert-3.csr"
-    dest: "{{ output_dir }}/cert-3.pem"
-    fullchain_dest: "{{ output_dir }}/cert-3-fullchain.pem"
-    chain_dest: "{{ output_dir }}/cert-3-chain.pem"
+    account_key: account-rsa2048
     challenge: dns-01
-  register: challenge_data
-- import_tasks: test-certificate-setup-dns.yml
-- name: Obtain cert 3, step 2
-  acme_certificate:
-    acme_version: 2
-    acme_directory: https://{{ acme_host }}:14000/dir
-    validate_certs: no
-    force: yes
-    account_key: "{{ output_dir }}/account-rsa2048.pem"
-    modify_account: no
-    csr: "{{ output_dir }}/cert-3.csr"
-    dest: "{{ output_dir }}/cert-3.pem"
-    fullchain_dest: "{{ output_dir }}/cert-3-fullchain.pem"
-    chain_dest: "{{ output_dir }}/cert-3-chain.pem"
-    challenge: dns-01
-    data: "{{ challenge_data }}"
-- import_tasks: test-certificate-clean-dns.yml
