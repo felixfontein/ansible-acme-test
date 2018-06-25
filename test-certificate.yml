@@ -1,5 +1,45 @@
 ---
 ## SET UP ACCOUNT KEYS ########################################################################
+- name: Create ECC256 account key
+  command: openssl ecparam -name prime256v1 -genkey -out {{ output_dir }}/account-ec256.pem
+- name: Create ECC384 account key
+  command: openssl ecparam -name secp384r1 -genkey -out {{ output_dir }}/account-ec384.pem
+- name: Create RSA-2048 account key
+  command: openssl genrsa -out {{ output_dir }}/account-rsa2048.pem 2048
+## SET UP ACCOUNTS ############################################################################
+- name: Create ECC256 account
+  acme_account:
+    acme_version: 2
+    acme_directory: https://{{ acme_host }}:14000/dir
+    validate_certs: no
+    account_key_src: "{{ output_dir }}/account-ec256.pem"
+    state: present
+    allow_creation: yes
+    terms_agreed: yes
+    contact:
+    - mailto:example@example.org
+- name: Create ECC384 account
+  acme_account:
+    acme_version: 2
+    acme_directory: https://{{ acme_host }}:14000/dir
+    validate_certs: no
+    account_key_src: "{{ output_dir }}/account-ec384.pem"
+    state: present
+    allow_creation: yes
+    terms_agreed: yes
+    contact:
+    - mailto:example@example.org
+    - mailto:example@example.com
+- name: Create RSA-2048 account
+  acme_account:
+    acme_version: 2
+    acme_directory: https://{{ acme_host }}:14000/dir
+    validate_certs: no
+    account_key_src: "{{ output_dir }}/account-rsa2048.pem"
+    state: present
+    allow_creation: yes
+    terms_agreed: yes
+    contact: []
 ## OBTAIN CERTIFICATES ########################################################################
 - name: Obtain cert 1
   include_tasks: test-certificate-obtain.yml

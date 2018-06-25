@@ -4,8 +4,24 @@
   - name: store the ACME container hostname
     set_fact:
       acme_host: "{{ lookup('env', 'acme_host') }}"
-  - import_tasks: test-setup.yml
-  - import_tasks: test-account-setup.yml
+  - name: Wait until controller is up and running
+    uri:
+      url: http://{{ acme_host }}:5000
+      validate_certs: no
+    register: check_controller_started
+    until: check_controller_started is success
+    retries: 20
+    delay: 1
+    ignore_errors: yes
+  - name: Wait until pebble is up and running
+    uri:
+      url: https://{{ acme_host }}:14000/dir
+      validate_certs: no
+    register: check_pebble_started
+    until: check_pebble_started is success
+    retries: 20
+    delay: 1
+    ignore_errors: yes
   - import_tasks: test-certificate.yml
   - import_tasks: test-account.yml
   - import_tasks: test-account-validate.yml
