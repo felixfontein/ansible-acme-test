@@ -83,6 +83,22 @@
     remaining_days: 10
     terms_agreed: no
     account_email: ""
+- name: Obtain cert 4
+  include_tasks: test-certificate-obtain.yml
+  vars:
+    certificate_name: cert-4
+    key_type: rsa
+    rsa_bits: 2048
+    subject_alt_name: "DNS:example.com,DNS:t1.example.com,DNS:test.t2.example.com,DNS:example.org,DNS:test.example.org"
+    subject_alt_name_critical: no
+    account_key: account-rsa2048
+    challenge: http-01
+    modify_account: no
+    deactivate_authzs: yes
+    force: yes
+    remaining_days: 10
+    terms_agreed: no
+    account_email: ""
 ## DISSECT CERTIFICATES #######################################################################
 # Make sure certificates are valid. Root certificate for Pebble equals the chain certificate.
 - name: Verifying cert 1
@@ -97,6 +113,10 @@
   command: openssl verify -CAfile "{{ output_dir }}/cert-3-chain.pem" "{{ output_dir }}/cert-3.pem"
   ignore_errors: yes
   register: cert_3_valid
+- name: Verifying cert 4
+  command: openssl verify -CAfile "{{ output_dir }}/cert-4-chain.pem" "{{ output_dir }}/cert-4.pem"
+  ignore_errors: yes
+  register: cert_4_valid
 # Dump certificate info
 - name: Verifying cert 1
   command: openssl x509 -in "{{ output_dir }}/cert-1.pem" -noout -text
@@ -107,3 +127,6 @@
 - name: Verifying cert 3
   command: openssl x509 -in "{{ output_dir }}/cert-3.pem" -noout -text
   register: cert_3_text
+- name: Verifying cert 4
+  command: openssl x509 -in "{{ output_dir }}/cert-4.pem" -noout -text
+  register: cert_4_text

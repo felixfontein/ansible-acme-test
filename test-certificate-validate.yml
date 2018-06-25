@@ -6,7 +6,7 @@
 - name: Check that certificate 1 contains correct SANs
   assert:
     that:
-      - "'DNS:example.com' in cert_1_text"
+      - "'DNS:example.com' in cert_1_text.stdout"
 
 - name: Check that certificate 2 is valid
   assert:
@@ -15,8 +15,8 @@
 - name: Check that certificate 2 contains correct SANs
   assert:
     that:
-      - "'DNS:*.example.com' in cert_2_text"
-      - "'DNS:example.com' in cert_2_text"
+      - "'DNS:*.example.com' in cert_2_text.stdout"
+      - "'DNS:example.com' in cert_2_text.stdout"
 
 - name: Check that certificate 3 is valid
   assert:
@@ -25,6 +25,19 @@
 - name: Check that certificate 3 contains correct SANs
   assert:
     that:
-      - "'DNS:*.example.com' in cert_3_text"
-      - "'DNS:example.org' in cert_3_text"
-      - "'DNS:t1.example.com' in cert_3_text"
+      - "'DNS:*.example.com' in cert_3_text.stdout"
+      - "'DNS:example.org' in cert_3_text.stdout"
+      - "'DNS:t1.example.com' in cert_3_text.stdout"
+
+- name: Check that certificate 4 is valid
+  assert:
+    that:
+      - cert_4_valid is not failed
+- name: Check that certificate 4 contains correct SANs
+  assert:
+    that:
+      - "'DNS:example.com' in cert_4_text.stdout"
+      - "'DNS:t1.example.com' in cert_4_text.stdout"
+      - "'DNS:test.t2.example.com' in cert_4_text.stdout"
+      - "'DNS:example.org' in cert_4_text.stdout"
+      - "'DNS:test.example.org' in cert_4_text.stdout"
