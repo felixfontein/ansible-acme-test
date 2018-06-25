@@ -1,13 +1,4 @@
 ---
-# Deactivate account
-- name: Deactivate EC256 account
-  acme_account:
-    acme_version: 2
-    acme_directory: https://{{ acme_host }}:14000/dir
-    validate_certs: no
-    account_key_src: "{{ output_dir }}/account-ec256.pem"
-    state: absent
-
 #######################################################################################
 ## Integration tests from Ansible
 
