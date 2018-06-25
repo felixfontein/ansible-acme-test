@@ -41,3 +41,15 @@
       - "'DNS:test.t2.example.com' in cert_4_text.stdout"
       - "'DNS:example.org' in cert_4_text.stdout"
       - "'DNS:test.example.org' in cert_4_text.stdout"
+- name: Check that certificate 4 was not recreated on the first try
+  assert:
+    that:
+      - cert_4_recreate_1 == False
+- name: Check that certificate 4 was recreated on the second try
+  assert:
+    that:
+      - cert_4_recreate_2 == True
+- name: Check that certificate 4 was recreated on the third try
+  assert:
+    that:
+      - cert_4_recreate_3 == True

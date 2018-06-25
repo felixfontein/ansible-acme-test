@@ -99,6 +99,60 @@
     remaining_days: 10
     terms_agreed: no
     account_email: ""
+- name: Obtain cert 4 (should not, since already there and valid for more than 10 days)
+  include_tasks: test-certificate-obtain.yml
+  vars:
+    certificate_name: cert-4
+    key_type: rsa
+    rsa_bits: 2048
+    subject_alt_name: "DNS:example.com,DNS:t1.example.com,DNS:test.t2.example.com,DNS:example.org,DNS:test.example.org"
+    subject_alt_name_critical: no
+    account_key: account-rsa2048
+    challenge: http-01
+    modify_account: no
+    deactivate_authzs: yes
+    force: no
+    remaining_days: 10
+    terms_agreed: no
+    account_email: ""
+- set_fact:
+    cert_4_recreate_1: "{{ challenge_data is changed }}"
+- name: Obtain cert 4 (should again by less days)
+  include_tasks: test-certificate-obtain.yml
+  vars:
+    certificate_name: cert-4
+    key_type: rsa
+    rsa_bits: 2048
+    subject_alt_name: "DNS:example.com,DNS:t1.example.com,DNS:test.t2.example.com,DNS:example.org,DNS:test.example.org"
+    subject_alt_name_critical: no
+    account_key: account-rsa2048
+    challenge: http-01
+    modify_account: no
+    deactivate_authzs: yes
+    force: yes
+    remaining_days: 1000
+    terms_agreed: no
+    account_email: ""
+- set_fact:
+    cert_4_recreate_2: "{{ challenge_data is changed }}"
+- name: Obtain cert 4 (should again by force)
+  include_tasks: test-certificate-obtain.yml
+  vars:
+    certificate_name: cert-4
+    key_type: rsa
+    rsa_bits: 2048
+    subject_alt_name: "DNS:example.com,DNS:t1.example.com,DNS:test.t2.example.com,DNS:example.org,DNS:test.example.org"
+    subject_alt_name_critical: no
+    account_key: account-rsa2048
+    challenge: http-01
+    modify_account: no
+    deactivate_authzs: yes
+    force: yes
+    remaining_days: 10
+    terms_agreed: no
+    account_email: ""
+- set_fact:
+    cert_4_recreate_3: "{{ challenge_data is changed }}"
 ## DISSECT CERTIFICATES #######################################################################
 # Make sure certificates are valid. Root certificate for Pebble equals the chain certificate.
 - name: Verifying cert 1
