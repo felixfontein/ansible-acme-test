@@ -50,6 +50,12 @@
     subject_alt_name: "DNS:example.com"
     account_key: account-ec256
     challenge: http-01
+    modify_account: no
+    deactivate_authzs: no
+    force: no
+    remaining_days: 10
+    terms_agreed: yes
+    account_email: ""
 - name: Obtain cert 2
   include_tasks: test-certificate-obtain.yml
   vars:
@@ -58,6 +64,12 @@
     subject_alt_name: "DNS:*.example.com,DNS:example.com"
     account_key: account-ec384
     challenge: dns-01
+    modify_account: no
+    deactivate_authzs: no
+    force: no
+    remaining_days: 10
+    terms_agreed: yes
+    account_email: ""
 - name: Obtain cert 3
   include_tasks: test-certificate-obtain.yml
   vars:
@@ -66,3 +78,9 @@
     subject_alt_name: "DNS:*.example.com,DNS:example.org,DNS:t1.example.com"
     account_key: account-rsa2048
     challenge: dns-01
+    modify_account: no
+    deactivate_authzs: no
+    force: no
+    remaining_days: 10
+    terms_agreed: yes
+    account_email: ""
