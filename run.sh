@@ -11,7 +11,7 @@ clean() {
 # Determine names and set up cleanup
 CONTAINER_NAME="acme-certificate-test-${POSTFIX}"
 OUTPUT_DIR="output-${POSTFIX}"
-trap "{ docker logs ${CONTAINER_NAME} ; cleanup() ; }" EXIT
+trap "{ docker logs ${CONTAINER_NAME} ; cleanup ; }" EXIT
 
 # Start container
 docker run --detach --name ${CONTAINER_NAME} --publish-all=true local/ansible/acme-test-container:latest
@@ -23,5 +23,5 @@ export acme_host=${TEST_CONTAINER_IP}
 ansible-playbook --extra-vars "output_dir=${OUTPUT_DIR}" test.yml
 
 # Cleanup
-cleanup()
+cleanup
 trap - EXIT
