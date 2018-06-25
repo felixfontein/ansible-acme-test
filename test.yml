@@ -24,5 +24,6 @@
     delay: 1
     ignore_errors: yes
   - import_tasks: test-certificate.yml
+  - import_tasks: test-certificate-validate.yml
   - import_tasks: test-account.yml
   - import_tasks: test-account-validate.yml

@@ -18,6 +18,7 @@
     path: "{{ output_dir }}/{{ certificate_name }}.csr"
     privatekey_path: "{{ output_dir }}/{{ certificate_name }}.key"
     subject_alt_name: "{{ subject_alt_name }}"
+    subject_alt_name_critical: "{{ subject_alt_name_critical }}"
 ## ACME STEP 1 ################################################################################
 - name: Obtain cert, step 1
   acme_certificate:

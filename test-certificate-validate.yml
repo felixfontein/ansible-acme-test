@@ -1,0 +1,30 @@
+---
+- name: Check that certificate 1 is valid
+  assert:
+    that:
+      - cert_1_valid is not failed
+- name: Check that certificate 1 contains correct SANs
+  assert:
+    that:
+      - "'DNS:example.com' in cert_1_text"
+
+- name: Check that certificate 2 is valid
+  assert:
+    that:
+      - cert_2_valid is not failed
+- name: Check that certificate 2 contains correct SANs
+  assert:
+    that:
+      - "'DNS:*.example.com' in cert_2_text"
+      - "'DNS:example.com' in cert_2_text"
+
+- name: Check that certificate 3 is valid
+  assert:
+    that:
+      - cert_3_valid is not failed
+- name: Check that certificate 3 contains correct SANs
+  assert:
+    that:
+      - "'DNS:*.example.com' in cert_3_text"
+      - "'DNS:example.org' in cert_3_text"
+      - "'DNS:t1.example.com' in cert_3_text"
