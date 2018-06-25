@@ -20,7 +20,7 @@ TEST_CONTAINER_IP=$(docker inspect -f '{{.NetworkSettings.IPAddress}}' ${CONTAIN
 # Run tests
 mkdir ${OUTPUT_DIR}
 export acme_host=${TEST_CONTAINER_IP}
-ansible-playbook --extra-vars "output_dir=${OUTPUT_DIR}" test.yml
+ansible-playbook --extra-vars "output_dir_master=${OUTPUT_DIR}" test.yml
 
 # Cleanup
 clean
