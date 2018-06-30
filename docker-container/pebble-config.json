@@ -4,6 +4,6 @@
     "certificate": "test/certs/localhost/cert.pem",
     "privateKey": "test/certs/localhost/key.pem",
     "httpPort": 5000,
-    "tlsPort": 403
+    "tlsPort": 5001
   }
 }

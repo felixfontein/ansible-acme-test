@@ -18,14 +18,18 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+import base64
+import codecs
 import logging
 import os
 import subprocess
 import sys
 
 from flask import Flask
-from flask import jsonify
 from flask import request
+
+from acme_tlsalpn import ALPNChallengeServer, gen_ss_cert
+from OpenSSL import crypto
 
 
 app = Flask(__name__)
@@ -61,7 +65,7 @@ def setup_loggers():
                 log(msg)
             except (KeyboardInterrupt, SystemExit):
                 raise
-            except:
+            except Exception as _:
                 self.handleError(record)
 
     log_handler = SimpleLogger()
@@ -74,6 +78,7 @@ def setup_loggers():
     logger.handlers = []
     logger.propagate = False
     logger.addHandler(log_handler)
+
 
 setup_loggers()
 
@@ -144,7 +149,7 @@ def dns_challenge(record):
     i = record.rfind('.')
     j = record.rfind('.', 0, i - 1)
     if i >= 0 and j >= 0:
-        zone = record[j+1:]
+        zone = record[j + 1:]
         record = record[:j]
     elif i >= 0:
         zone = record
@@ -165,6 +170,30 @@ def dns_challenge(record):
         log('Removing TXT records for zone {0}, record {1}'.format(zone, record))
         del txt_records[zone][record]
     update_zone(zone)
+    return 'ok'
+
+
+tls_alpn_server = ALPNChallengeServer(port=5001, log_callback=log)
+
+
+@app.route('/tls-alpn/<string:domain>', methods=['PUT', 'DELETE'])
+def tls_alpn_challenge(domain):
+    if request.method == 'PUT':
+        log('Adding TLS ALPN challenge for domain {0}'.format(domain))
+        der_value = b"DER:0420" + codecs.encode(base64.standard_b64decode(request.data), 'hex')
+        # Create private key
+        key = crypto.PKey()
+        key.generate_key(crypto.TYPE_RSA, 2048)
+        # Create self-signed certificates
+        acme_extension = crypto.X509Extension(b"1.3.6.1.5.5.7.1.30.1", critical=True, value=der_value)
+        cert_normal = gen_ss_cert(key, [domain], [])
+        cert_challenge = gen_ss_cert(key, [domain], extensions=[acme_extension])
+        # Start/modify TLS-ALPN-01 challenge server
+        tls_alpn_server.add(domain, key, cert_normal, cert_challenge)
+    else:
+        log('Removing TLS ALPN challenge for domain {0}'.format(domain))
+        tls_alpn_server.remove(domain)
+    tls_alpn_server.update()
     return 'ok'
 
 
