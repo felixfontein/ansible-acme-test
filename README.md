@@ -2,7 +2,7 @@
 
 A [Docker](https://en.wikipedia.org/wiki/Docker_(software))-based test suite for Ansible's [acme_account](https://docs.ansible.com/ansible/devel/modules/acme_account_module.html), [acme_certificate](https://docs.ansible.com/ansible/devel/modules/acme_certificate_module.html) and [acme_certificate_revoke](https://docs.ansible.com/ansible/devel/modules/acme_certificate_revoke_module.html) modules.
 
-Uses [Pebble](https://github.com/letsencrypt/Pebble) as the ACME-based CA and [BIND 9](https://www.isc.org/downloads/bind/) as a DNS resolver (for fulfilling `dns-01` challenges).
+Uses [Pebble](https://github.com/letsencrypt/Pebble) as the ACME-based CA. Provides a controller for fulfilling challenges.
 
 ## Usage
 
