@@ -1,6 +1,6 @@
 # acme-test-container
 
-ACME CA test container for testing. Uses [Pebble](https://github.com/letsencrypt/Pebble) and [BIND 9](https://www.isc.org/downloads/bind/).
+ACME CA test container for testing. Uses [Pebble](https://github.com/letsencrypt/Pebble).
 
 ## Usage
 
