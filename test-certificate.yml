@@ -47,7 +47,7 @@
     subject_alt_name: "DNS:example.com"
     subject_alt_name_critical: no
     account_key: account-ec256
-    challenge: http-01
+    challenge: tls-alpn-01
     modify_account: yes
     deactivate_authzs: no
     force: no
