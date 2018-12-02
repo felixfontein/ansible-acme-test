@@ -24,10 +24,10 @@
     delay: 1
     ignore_errors: yes
   - set_fact:
-      output_dir: "{{ output_dir_master }}/inspect"
+      output_dir: "{{ output_dir_master }}/account"
   - file: dest={{ output_dir }} state=directory
-  - import_tasks: test-inspect.yml
-  - import_tasks: test-inspect-validate.yml
+  - import_tasks: test-account.yml
+  - import_tasks: test-account-validate.yml
   - set_fact:
       output_dir: "{{ output_dir_master }}/certificate"
   - file: dest={{ output_dir }} state=directory
@@ -39,7 +39,7 @@
   - import_tasks: test-certificate-revoke.yml
   - import_tasks: test-certificate-revoke-validate.yml
   - set_fact:
-      output_dir: "{{ output_dir_master }}/account"
+      output_dir: "{{ output_dir_master }}/inspect"
   - file: dest={{ output_dir }} state=directory
-  - import_tasks: test-account.yml
-  - import_tasks: test-account-validate.yml
+  - import_tasks: test-inspect.yml
+  - import_tasks: test-inspect-validate.yml
