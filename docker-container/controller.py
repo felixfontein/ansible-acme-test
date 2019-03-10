@@ -221,4 +221,4 @@ def get_root_certificate_pebble():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('CONTROLLER_PORT', 5000)))
+    app.run(debug=False, host='::', port=int(os.environ.get('CONTROLLER_PORT', 5000)))
