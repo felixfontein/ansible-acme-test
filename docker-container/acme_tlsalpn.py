@@ -168,7 +168,9 @@ class TLSALPN01Server(socketserver.TCPServer):
         server_name = connection.get_servername()
         self.log_callback("TLS ALPN Challenge server: Serving challenge cert for server name {0}".format(server_name))
         # return self.certs.get(server_name, None)
-        return self.challenge_certs.get(server_name, None)
+        if server_name.endswith(b'.'):
+            server_name = server_name[:-1]
+        return self.challenge_certs.get(server_name)
 
     def _alpn_selection(self, _connection, alpn_protos):
         """Callback to select alpn protocol."""
@@ -198,11 +200,15 @@ class ALPNChallengeServer(object):
         self.log_callback = log_callback
 
     def add(self, domain, key, cert_normal, cert_challenge):
+        if domain.endswith('.'):
+            domain = domain[:-1]
         domain = domain.encode('utf-8')
         self.certs[domain] = (key, cert_normal)
         self.challenge_certs[domain] = (key, cert_challenge)
 
     def remove(self, domain):
+        if domain.endswith('.'):
+            domain = domain[:-1]
         domain = domain.encode('utf-8')
         self.certs.pop(domain)
         self.challenge_certs.pop(domain)
