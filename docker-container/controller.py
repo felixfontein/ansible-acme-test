@@ -188,9 +188,14 @@ def tls_alpn_challenge_delete(domain):
 @app.route('/.well-known/acme-challenge/<string:filename>')
 def get_http_challenge(filename):
     host = request.headers.get('Host')
-    i = host.find(':')
+    if host.startswith('[') and ']' in host:
+        i = host.find(':', host.find(']'))
+    else:
+        i = host.find(':')
     if i >= 0:
         host = host[:i]
+    if host[0] == '[' and host[-1] == ']':
+        host = host[1:-1]
     if host not in challenges:
         log('Retrieving HTTP challenge for unknown host {0}!'.format(host))
         return 'unknown host', 404
