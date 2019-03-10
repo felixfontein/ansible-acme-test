@@ -19,6 +19,12 @@
     privatekey_path: "{{ output_dir }}/{{ certificate_name }}.key"
     subject_alt_name: "{{ subject_alt_name }}"
     subject_alt_name_critical: "{{ subject_alt_name_critical }}"
+- name: ({{ certgen_title }}) Dump CSR (1/2)
+  command: openssl req -in {{ output_dir }}/{{ certificate_name }}.csr -noout -text
+  register: csr_dump
+- name: ({{ certgen_title }}) Dump CSR (2/2)
+  debug:
+    var: csr_dump.stdout_lines
 ## ACME STEP 1 ################################################################################
 - name: ({{ certgen_title }}) Obtain cert, step 1
   acme_certificate:
