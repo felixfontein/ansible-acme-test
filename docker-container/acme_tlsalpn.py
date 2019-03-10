@@ -221,7 +221,6 @@ def gen_ss_cert(key, domains, extensions):
     cert.set_serial_number(int(binascii.hexlify(os.urandom(16)), 16))
     cert.set_version(2)
     extensions.append(crypto.X509Extension(b"basicConstraints", True, b"CA:TRUE, pathlen:0"))
-    cert.get_subject().CN = domains[0]
     cert.set_issuer(cert.get_subject())
     extensions.append(crypto.X509Extension(b"subjectAltName", critical=False, value=b", ".join(b"DNS:" + d.encode() for d in domains)))
     cert.add_extensions(extensions)
