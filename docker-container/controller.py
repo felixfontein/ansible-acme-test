@@ -125,14 +125,20 @@ def dns_challenge(record):
 tls_alpn_server = ALPNChallengeServer(port=5001, log_callback=log)
 
 
-def _get_alpn_key_cert_from_der_value(domain, data):
+def _get_alpn_key_cert_from_der_value(domain, identifier, data):
     der_value = b"DER:0420" + codecs.encode(base64.standard_b64decode(data), 'hex')
+    domains = []
+    ips = []
+    if identifier.startswith('DNS:'):
+        domains.add(identifier[4:])
+    elif identifier.startswith('IP:'):
+        ips.add(identifier[3:])
     # Create private key
     key = crypto.PKey()
     key.generate_key(crypto.TYPE_RSA, 2048)
     # Create self-signed certificates
     acme_extension = crypto.X509Extension(b"1.3.6.1.5.5.7.1.31", critical=True, value=der_value)
-    cert_challenge = gen_ss_cert(key, [domain], extensions=[acme_extension])
+    cert_challenge = gen_ss_cert(key, domains, ips, extensions=[acme_extension])
     return key, cert_challenge
 
 
@@ -144,7 +150,7 @@ def _find_line_regex(lines, regex):
     raise Exception('Cannot find line in input which matches "{0}"!'.format(regex))
 
 
-def _get_alpn_key_cert_from_pem_chain(domain, data):
+def _get_alpn_key_cert_from_pem_chain(domain, identifier, data):
     data = data.split(b'\n')
     # Extract challenge certificate
     cert_lines = data[_find_line_regex(data, b'-----BEGIN .*CERTIFICATE-----'):_find_line_regex(data, b'-----END .*CERTIFICATE-----') + 1]
@@ -155,22 +161,22 @@ def _get_alpn_key_cert_from_pem_chain(domain, data):
     return key, cert_challenge
 
 
-@app.route('/tls-alpn/<string:domain>/der-value-b64', methods=['PUT'])
-def tls_alpn_challenge_put_b64(domain):
-    log('Adding TLS ALPN challenge for domain {0} (Base64 encoded DER value)'.format(domain))
-    key, cert_challenge = _get_alpn_key_cert_from_der_value(domain, request.data)
-    cert_normal = gen_ss_cert(key, [domain], [])
+@app.route('/tls-alpn/<string:domain>/<string:identifier>/der-value-b64', methods=['PUT'])
+def tls_alpn_challenge_put_b64(domain, identifier):
+    log('Adding TLS ALPN challenge for domain {0} and identifier {1} (Base64 encoded DER value)'.format(domain, identifier))
+    key, cert_challenge = _get_alpn_key_cert_from_der_value(domain, identifier, request.data)
+    cert_normal = gen_ss_cert(key, [domain], [], [])
     # Start/modify TLS-ALPN-01 challenge server
     tls_alpn_server.add(domain, key, cert_normal, cert_challenge)
     tls_alpn_server.update()
     return 'ok'
 
 
-@app.route('/tls-alpn/<string:domain>/certificate-and-key', methods=['PUT'])
-def tls_alpn_challenge_put_pem(domain):
-    log('Adding TLS ALPN challenge for domain {0} (PEM certificate and key)'.format(domain))
-    key, cert_challenge = _get_alpn_key_cert_from_pem_chain(domain, request.data)
-    cert_normal = gen_ss_cert(key, [domain], [])
+@app.route('/tls-alpn/<string:domain>/<string:identifier>/certificate-and-key', methods=['PUT'])
+def tls_alpn_challenge_put_pem(domain, identifier):
+    log('Adding TLS ALPN challenge for domain {0} and identifier {1} (PEM certificate and key)'.format(domain, identifier))
+    key, cert_challenge = _get_alpn_key_cert_from_pem_chain(domain, identifier, request.data)
+    cert_normal = gen_ss_cert(key, [domain], [], [])
     # Start/modify TLS-ALPN-01 challenge server
     tls_alpn_server.add(domain, key, cert_normal, cert_challenge)
     tls_alpn_server.update()

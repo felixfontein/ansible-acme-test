@@ -222,13 +222,16 @@ class ALPNChallengeServer(object):
             self.thread.start()
 
 
-def gen_ss_cert(key, domains, extensions):
+def gen_ss_cert(key, domains, ips, extensions):
     cert = crypto.X509()
     cert.set_serial_number(int(binascii.hexlify(os.urandom(16)), 16))
     cert.set_version(2)
     extensions.append(crypto.X509Extension(b"basicConstraints", True, b"CA:TRUE, pathlen:0"))
     cert.set_issuer(cert.get_subject())
-    extensions.append(crypto.X509Extension(b"subjectAltName", critical=False, value=b", ".join(b"DNS:" + d.encode() for d in domains)))
+    sans = []
+    sans.extend([b"DNS:" + d.encode() for d in domains])
+    sans.extend([b"IP:" + d.encode() for d in ips])
+    extensions.append(crypto.X509Extension(b"subjectAltName", critical=False, value=b", ".join(sans)))
     cert.add_extensions(extensions)
     cert.gmtime_adj_notBefore(0)
     cert.gmtime_adj_notAfter(24 * 60 * 60)
