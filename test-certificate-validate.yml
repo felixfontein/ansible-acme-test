@@ -1,4 +1,33 @@
 ---
+- name: Content of certificate 0
+  debug:
+    var: cert_0_text.stdout_lines
+- name: Check that certificate 0 is valid
+  assert:
+    that:
+      - cert_0_valid is not failed
+- name: Check that certificate 0 contains correct SANs
+  assert:
+    that:
+      - "('IP:127.0.0.1' in cert_0_text.stdout) or ('IP Address:127.0.0.1' in cert_0_text.stdout)"
+      - "('IP:::1' in cert_0_text.stdout) or ('IP Address:::1' in cert_0_text.stdout) or
+         ('IP:0:0:0:0:0:0:0:1' in cert_0_text.stdout) or ('IP Address:0:0:0:0:0:0:0:1' in cert_0_text.stdout)"
+
+- name: Content of certificate 0b
+  debug:
+    var: cert_0b_text.stdout_lines
+- name: Check that certificate 0b is valid
+  assert:
+    that:
+      - cert_0b_valid is not failed
+- name: Check that certificate 0b contains correct SANs
+  assert:
+    that:
+      - "('IP:127.0.0.1' in cert_0b_text.stdout) or ('IP Address:127.0.0.1' in cert_0b_text.stdout)"
+
+- name: Content of certificate 1
+  debug:
+    var: cert_1_text.stdout_lines
 - name: Check that certificate 1 is valid
   assert:
     that:
@@ -8,6 +37,9 @@
     that:
       - "'DNS:example.com' in cert_1_text.stdout"
 
+- name: Content of certificate 2
+  debug:
+    var: cert_2_text.stdout_lines
 - name: Check that certificate 2 is valid
   assert:
     that:
@@ -18,6 +50,9 @@
       - "'DNS:*.example.com' in cert_2_text.stdout"
       - "'DNS:example.com' in cert_2_text.stdout"
 
+- name: Content of certificate 3
+  debug:
+    var: cert_3_text.stdout_lines
 - name: Check that certificate 3 is valid
   assert:
     that:
@@ -29,6 +64,9 @@
       - "'DNS:example.org' in cert_3_text.stdout"
       - "'DNS:t1.example.com' in cert_3_text.stdout"
 
+- name: Content of certificate 4
+  debug:
+    var: cert_4_text.stdout_lines
 - name: Check that certificate 4 is valid
   assert:
     that:
@@ -42,6 +80,9 @@
       - "'DNS:example.org' in cert_4_text.stdout"
       - "'DNS:test.example.org' in cert_4_text.stdout"
 
+- name: Content of certificate 5
+  debug:
+    var: cert_5_text.stdout_lines
 - name: Check that certificate 5 is valid
   assert:
     that:

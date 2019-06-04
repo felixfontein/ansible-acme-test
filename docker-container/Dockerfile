@@ -1,10 +1,17 @@
 FROM golang:1.10-stretch as builder
 # Install pebble
-ARG PEBBLE_CHECKOUT="1f851bf3f6b0c22d2f59c1e8958b79e0ab7ad580"
+ARG PEBBLE_REMOTE=
+ARG PEBBLE_CHECKOUT="7228963479dd2bce0c040049b18e67393155bc6a"
 ENV GOPATH=/go
-RUN go get -u github.com/letsencrypt/pebble/... && \
-    cd /go/src/github.com/letsencrypt/pebble && \
-    git checkout ${PEBBLE_CHECKOUT} && \
+RUN go get -u github.com/letsencrypt/pebble/...
+RUN cd /go/src/github.com/letsencrypt/pebble && \
+    if [ "${PEBBLE_REMOTE}" != "" ]; then \
+      git remote add other ${PEBBLE_REMOTE} && \
+      git fetch other && \
+      git checkout -b other-${PEBBLE_CHECKOUT} --track other/${PEBBLE_CHECKOUT}; \
+    else \
+      git checkout ${PEBBLE_CHECKOUT}; \
+    fi && \
     go install ./...
 
 FROM python:3.6-slim-stretch
